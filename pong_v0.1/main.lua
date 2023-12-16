@@ -1,25 +1,55 @@
 
+-- Prendiamo la libreria push, serve a dare un tocco retrò al gioco dandoci delle dimensioni virtuali della finestra, la finestra avrà comunque altezza e larghezza scelte ma renderizzerà il gioco alle dimensioni virtuali.
+-- Link della libreria: https://github.com/Ulydev/push
+push = require 'push'
 
+-- Variabili di sistema utilizzate dalla funzione love.window.setmode per definire la grandezza della finestra
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720
+
+-- Variabili della renderizzazione virtuale
+VIRTUAL_WIDTH = 432
+VIRTUAL_HEIGHT = 243
 
 -- funzione love.load() viene chiamata solo quando il gioco parte, serve per inizializzare il gioco.
 
 function love.load()
-    love.window.setMode(WINDOW_WIDTH, WINDOW_HEIGHT, {
+
+    -- il filtro nearest ci permette di rimuovere l'effetto offuscato dal testo, rimuovere per provare
+    love.graphics.setDefaultFilter('nearest', 'nearest')
+    -- Per settare la larghezza della finestra non usiamo più la funzione window.setmode ma utilizziamo la libreria push
+    push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
         fullscreen = false,
         resizable = false,
         vsync = true
     })
 end
 
+-- funzione love.pressedkey() serve a intercettare gli input degli utenti
+function love.keypressed(key)
+    
+    if key == 'escape' then
+        -- utilizzo la funzione di love che chiude l'applicazione
+        love.event.quit()
+    end
+end
+
+
+
 -- funzione love.draw() viene chiamata dopo l'update di LOVE2D e serve per disegnare qualcosa sullo schermo.
 
 function love.draw()
+
+    --aggiungiamo la libreria push per renderizzare utilizzando il filtro e la risoluzione virtuale
+    -- tutto quello che c'è tra push:apply('start') e push:apply('end') verrà renderizzato e filtrato secondo la libreria
+    push:apply('start')
+
     love.graphics.printf(
         'Ciao Pong', --testo da stampare
         0, -- posizione X iniziale
-        WINDOW_HEIGHT / 2, -- posizione Y iniziale (utilizziamo l'altezza della finestra /2 per metterlo a metà schermo)
-        WINDOW_WIDTH, -- Il numero dei pixel all'interno del quale il testo è centrato
+        VIRTUAL_HEIGHT / 2, -- posizione Y iniziale (utilizziamo l'altezza della finestra /2 per metterlo a metà schermo)
+        VIRTUAL_WIDTH, -- Il numero dei pixel all'interno del quale il testo è centrato
         'center') --metodo di allineamento, può essere 'center', 'left' o 'right'
-end
+        
+    push:apply('end') 
+    end

@@ -32,6 +32,9 @@ function love.load()
     -- il filtro nearest ci permette di rimuovere l'effetto offuscato dal testo, rimuovere per provare
     love.graphics.setDefaultFilter('nearest', 'nearest')
 
+
+    -- settiamo il nome del gioco
+    love.window.setTitle('pong')
     -- facciamo un seed del randomizer (ha bisogno di un valore per funzionare)
     -- utilizziamo il tempo attuale in secondi dal 01/01/1970
     math.randomseed(os.time())
@@ -53,23 +56,11 @@ function love.load()
     player1Score = 0
     player2Score = 0
 
-    -- -- posizioni dei rettangoli, ci concentriamo sulla Y perché ci si può muovere solo in alto e in basso
-    -- player1Y = 30
-    -- player2Y = VIRTUAL_HEIGHT - 50
-
-    -- quello sopra viene sosotutito da
+    -- carichiamo i player (paddles)
     player1 = Paddle(10, 30, 5, 20)
     player2 = Paddle(VIRTUAL_WIDTH - 10,VIRTUAL_HEIGHT - 30, 5, 20)
 
-    -- -- inzializziamo la posizione della palla così da poterla controllare dopo
-    -- ballX = VIRTUAL_HEIGHT / 2 - 2
-    -- ballY = VIRTUAL_WIDTH / 2 - 2
-
-    -- -- creo dei delta della palla in modo da farla muovere inizialmente in maniera casuale
-    -- ballDY = math.random(2) == 1 and 100 or -100
-    -- ballDX = math.random(-50, 50)
-
-    -- quello sopra viene sostituito da
+    -- carichiamo la palla
     ball = Ball(VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, 4, 4)
 
     -- creo una variabile di stato del gioco, per dividere i vari momenti
@@ -92,12 +83,6 @@ function love.keypressed(key)
             gamestate = 'start'
 
             -- -- resetto la posizione della palla
-            -- ballX = VIRTUAL_HEIGHT / 2 - 2
-            -- ballY = VIRTUAL_WIDTH / 2 - 2
-
-            -- -- creo dei delta della palla in modo da darle una velocità casuale
-            -- ballDY = math.random(2) == 1 and 100 or -100
-            -- ballDX = math.random(-50, 50) * 1.5
 
             ball:reset()
         end
@@ -108,17 +93,11 @@ end
 function love.update(dt)
     -- movimenti player 1
     if love.keyboard.isDown('w') then
-        -- aggiungiamo movimento negativo alla Y (quindi verso l'alto) moltiplicato per il delta time(per aver un movimento costante nel tempo)
-        -- modifico la posizione in modo tale che non si superi lo schermo
-        -- usando math.max ottengo il più grande di due valori; 0 e la Y del giocatore
-        -- così non supero lo schermo
-        -- player1Y = math.max(0, player1Y + -PADDLE_SPEED * dt) questo viene sostituito ora che abbiamo gli oggetti
+        -- aggiungo velocità negativa al valore y
         player1.dy = -PADDLE_SPEED
 
     elseif love.keyboard.isDown('s') then
-        -- aggiungiamo movimento positivo x delta time
-        -- faccio la stessa cosa ma con math.min
-        -- player1Y = math.min(VIRTUAL_HEIGHT - 20, player1Y + PADDLE_SPEED * dt)
+        -- aggiungiamo velocità positiva al valore y
         player1.dy = PADDLE_SPEED
     else
         player1.dy = 0
@@ -126,13 +105,8 @@ function love.update(dt)
 
     --movimenti player 2 
     if love.keyboard.isDown('up') then
-        -- aggiungiamo movimento negativo alla Y (quindi verso l'alto) moltiplicato per il delta time(per aver un movimento costante nel tempo)
-        -- facciamo la stessa cosa di sopra per non fare superare i bordi dello schermo
-        -- player2Y = math.max(0, player2Y + -PADDLE_SPEED * dt)
         player2.dy = - PADDLE_SPEED
     elseif love.keyboard.isDown('down') then
-        -- aggiungiamo movimento positivo x delta time
-        -- player2Y = math.min(VIRTUAL_HEIGHT - 20, player2Y + PADDLE_SPEED * dt)
         player2.dy = PADDLE_SPEED
     else
         player2.dy = 0
@@ -176,12 +150,20 @@ function love.draw()
     love.graphics.print(tostring(player1Score), VIRTUAL_WIDTH / 2 - 50, VIRTUAL_HEIGHT / 3)
     love.graphics.print(tostring(player2Score), VIRTUAL_WIDTH / 2 + 30, VIRTUAL_HEIGHT / 3)
 
+
     -- creiamo i due giocatori, utilizzando le classi adesso
     player1:render()
     player2:render()
-
+    
     -- facciamo la stessa cosa con la palla
     ball:render()
 
+    -- scriviamo a schermo gli fps
+    love.graphics.setFont(smallFont)
+    love.graphics.setColor(0, 255/255, 0, 255/255)
+    love.graphics.printf('FPS: ' .. tostring(love.timer.getFPS()), 10, 10, VIRTUAL_WIDTH, left)
+    
     push:apply('end') 
 end
+
+

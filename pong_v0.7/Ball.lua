@@ -16,6 +16,22 @@ function Ball:init(x, y, width, height)
     self.dx =  math.random(-50, 50)
 end
 
+-- creo la funzione di collisione della palla con i paddles da utilizzare nel main
+function Ball:collide(paddle)
+    -- se il valore x della palla è maggiore del valore x del paddle più la sua larghezza allora non collidono
+    -- lo stesso vale al contrario
+    if self.x > paddle.x + paddle.width or paddle.x > self.x + self.width then
+        return false
+    end
+    
+    if self-y > paddle.y + paddle.width or paddle.y > self.y + self.width then 
+        return false
+    end
+
+    -- se nessuna delle condizioni sopra è vera allora si stanno toccando quindi diamo un return true
+    return true
+end
+
 
 -- funzione di reset della palla, da chiamare quando si cambia gamestate
 function Ball:reset()

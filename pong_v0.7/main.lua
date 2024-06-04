@@ -91,6 +91,54 @@ end
 
 
 function love.update(dt)
+
+    if gameState == 'play' then
+        -- becchiamo le collisioni tramite la funzione nel Ball.lua
+        if ball:collides(player1) then
+            -- invertiamo il delta x della palla e lo velocizziamo
+            ball.dx = -ball.dx * 1.02
+            -- ci assicuriamo che la palla non entri all'interno del paddle dandogli una posizione
+            ball.x = player1.x + 5
+
+            --variamo la y della palla in modo da non avere sempre solo lo stesso angolo
+
+            if ball.dy < 0 then
+                ball.dy = -math.random(10, 150)
+            else
+                ball.dy = math.random(10, 150)
+            end
+
+        end
+
+
+        -- becchiamo le collisioni tramite la funzione nel Ball.lua con il player 2
+        if ball:collides(player2) then
+            -- invertiamo il delta x della palla e lo velocizziamo
+            ball.dx = -ball.dx * 1.02
+            -- ci assicuriamo che la palla non entri all'interno del paddle dandogli una posizione
+            -- in questo caso -4 perché partendo da destra incontriamo la larghezza della palla
+            ball.x = player2.x - 4
+
+            if ball.dy < 0 then
+                ball.dy = -math.random(10, 150)
+            else
+                ball.dy = math.random(10, 150)
+            end
+        end
+
+        -- adesso consideriamo le collisioni con le parti sopra e sotto dello schermo
+        if ball.y <= 0 then
+            ball.y = 0
+            ball.dy = - ball.dy
+        end
+    
+        if ball.y >= VIRTUAL_HEIGHT - 4 then
+            ball.y = VIRTUAL_HEIGHT - 4
+            ball.dy = -ball.dy
+        end
+    end
+
+
     -- movimenti player 1
     if love.keyboard.isDown('w') then
         -- aggiungo velocità negativa al valore y

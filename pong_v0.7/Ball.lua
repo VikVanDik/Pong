@@ -13,7 +13,7 @@ function Ball:init(x, y, width, height)
 
     -- questi invece i parametri che servono per il movimento
     self.dy = math.random(2) == 1 and 100 or -100
-    self.dx =  math.random(-50, 50)
+    self.dx =  math.random(-50, 100)
 end
 
 -- creo la funzione di collisione della palla con i paddles da utilizzare nel main
@@ -24,7 +24,7 @@ function Ball:collide(paddle)
         return false
     end
     
-    if self-y > paddle.y + paddle.width or paddle.y > self.y + self.width then 
+    if self.y > paddle.y + paddle.height or paddle.y > self.y + self.height then 
         return false
     end
 

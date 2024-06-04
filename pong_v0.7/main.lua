@@ -94,7 +94,7 @@ function love.update(dt)
 
     if gameState == 'play' then
         -- becchiamo le collisioni tramite la funzione nel Ball.lua
-        if ball:collides(player1) then
+        if ball:collide(player1) then
             -- invertiamo il delta x della palla e lo velocizziamo
             ball.dx = -ball.dx * 1.02
             -- ci assicuriamo che la palla non entri all'interno del paddle dandogli una posizione
@@ -112,7 +112,7 @@ function love.update(dt)
 
 
         -- becchiamo le collisioni tramite la funzione nel Ball.lua con il player 2
-        if ball:collides(player2) then
+        if ball:collide(player2) then
             -- invertiamo il delta x della palla e lo velocizziamo
             ball.dx = -ball.dx * 1.02
             -- ci assicuriamo che la palla non entri all'interno del paddle dandogli una posizione

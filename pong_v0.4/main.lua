@@ -21,6 +21,10 @@ function love.load()
     -- il filtro nearest ci permette di rimuovere l'effetto offuscato dal testo, rimuovere per provare
     love.graphics.setDefaultFilter('nearest', 'nearest')
 
+    -- facciamo un seed del randomizer (ha bisogno di un valore per funzionare)
+    -- utilizziamo il tempo attuale in secondi dal 01/01/1970
+    math.randomseed(os.time())
+
     -- creiamo una variabile font prendendolo dal file nella directory, il numero indica la grandezza del font
     smallFont = love.graphics.newFont('font.ttf', 8)
 
@@ -42,6 +46,17 @@ function love.load()
     player1Y = 30
     player2Y = VIRTUAL_HEIGHT - 50
 
+    -- inzializziamo la posizione della palla così da poterla controllare dopo
+    ballX = VIRTUAL_HEIGHT / 2 - 2
+    ballY = VIRTUAL_WIDTH / 2 - 2
+
+    -- creo dei delta della palla in modo da farla muovere inizialmente in maniera casuale
+    ballDX = math.random(2) == 1 and 100 or -100
+    ballDY = math.random(-50, 50)
+
+    -- creo una variabile di stato del gioco, per dividere i vari momenti
+    -- start è il momento in cui ancora non si gioca ed è tutto fermo
+    gameState = 'start'
 end
 
 -- funzione love.pressedkey() serve a intercettare gli input degli utenti
@@ -50,6 +65,22 @@ function love.keypressed(key)
     if key == 'escape' then
         -- utilizzo la funzione di love che chiude l'applicazione
         love.event.quit()
+
+
+    elseif key == 'enter' or key == 'return' then 
+        if gameState == 'start' then
+            gameState = 'play'
+        else
+            gamestate = 'start'
+
+            -- resetto la posizione della palla
+            ballX = VIRTUAL_HEIGHT / 2 - 2
+            ballY = VIRTUAL_WIDTH / 2 - 2
+
+            -- creo dei delta della palla in modo da farla muovere inizialmente in maniera casuale
+            ballDX = math.random(2) == 1 and 100 or -100
+            ballDY = math.random(-50, 50) * 1.5
+        end
     end
 end
 
@@ -58,19 +89,29 @@ function love.update(dt)
     -- movimenti player 1
     if love.keyboard.isDown('w') then
         -- aggiungiamo movimento negativo alla Y (quindi verso l'alto) moltiplicato per il delta time(per aver un movimento costante nel tempo)
-        player1Y = player1Y + -PADDLE_SPEED * dt
+        -- modifico la posizione in modo tale che non si superi lo schermo
+        -- usando math.max ottengo il più grande di due valori; 0 e la Y del giocatore
+        -- così non supero lo schermo
+        player1Y = math.max(0, player1Y + -PADDLE_SPEED * dt)
     elseif love.keyboard.isDown('s') then
         -- aggiungiamo movimento positivo x delta time
-        player1Y = player1Y + PADDLE_SPEED * dt
+        -- faccio la stessa cosa ma con math.min
+        player1Y = math.min(VIRTUAL_HEIGHT - 20, player1Y + PADDLE_SPEED * dt)
     end
 
     --movimenti player 2 
     if love.keyboard.isDown('up') then
         -- aggiungiamo movimento negativo alla Y (quindi verso l'alto) moltiplicato per il delta time(per aver un movimento costante nel tempo)
-        player2Y = player2Y + -PADDLE_SPEED * dt
+        -- facciamo la stessa cosa di sopra per non fare superare i bordi dello schermo
+        player2Y = math.max(0, player2Y + -PADDLE_SPEED * dt)
     elseif love.keyboard.isDown('down') then
         -- aggiungiamo movimento positivo x delta time
-        player2Y = player2Y + PADDLE_SPEED * dt
+        player2Y = math.min(VIRTUAL_HEIGHT - 20, player2Y + PADDLE_SPEED * dt)
+    end
+
+    if gameState == 'play' then
+        ballX = ballX + ballDX * dt
+        ballY = ballY + ballDY * dt
     end
 end
 
@@ -81,13 +122,20 @@ function love.draw()
     --aggiungiamo la libreria push per renderizzare utilizzando il filtro e la risoluzione virtuale
     -- tutto quello che c'è tra push:apply('start') e push:apply('end') verrà renderizzato e filtrato secondo la libreria
     push:apply('start')
-
+    
     -- sposto più in alto la scritta ciao pong rispetto allo scorso commit ricordando che adesso le misure rispecchieranno quelle virtuali
+    love.graphics.setFont(smallFont)
 
     love.graphics.printf(
         'Ciao Pong', --testo da stampare
         0, -- posizione X iniziale
         20, -- posizione Y iniziale (utilizziamo l'altezza della finestra /2 per metterlo a metà schermo)
+        VIRTUAL_WIDTH, -- Il numero dei pixel all'interno del quale il testo è centrato
+        'center') --metodo di allineamento, può essere 'center', 'left' o 'right'
+    love.graphics.printf(
+        gameState, --testo da stampare
+        0, -- posizione X iniziale
+        0, -- posizione Y iniziale (utilizziamo l'altezza della finestra /2 per metterlo a metà schermo)
         VIRTUAL_WIDTH, -- Il numero dei pixel all'interno del quale il testo è centrato
         'center') --metodo di allineamento, può essere 'center', 'left' o 'right'
     
@@ -107,7 +155,12 @@ function love.draw()
     )
 
     -- Disegno la pallina
-    love.graphics.rectangle('fill',VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, 4, 4)
+    love.graphics.rectangle(
+        'fill',
+        ballY,
+        ballX,
+        4,
+        4)
 
     -- Disegno il secondo rettangolo
     love.graphics.rectangle(

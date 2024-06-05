@@ -56,6 +56,9 @@ function love.load()
     player1Score = 0
     player2Score = 0
 
+    -- giocatore che serve, default 1
+    servingPlayer = 1
+
     -- carichiamo i player (paddles)
     player1 = Paddle(10, 30, 5, 20)
     player2 = Paddle(VIRTUAL_WIDTH - 10,VIRTUAL_HEIGHT - 30, 5, 20)
@@ -68,30 +71,10 @@ function love.load()
     gameState = 'start'
 end
 
--- funzione love.pressedkey() serve a intercettare gli input degli utenti
-function love.keypressed(key)
-    
-    if key == 'escape' then
-        -- utilizzo la funzione di love che chiude l'applicazione
-        love.event.quit()
-
-
-    elseif key == 'enter' or key == 'return' then 
-        if gameState == 'start' then
-            gameState = 'play'
-        else
-            gamestate = 'start'
-
-            -- -- resetto la posizione della palla
-
-            ball:reset()
-        end
-    end
-end
 
 
 function love.update(dt)
-
+    
     if gameState == 'serve' then
 
         -- il delta della velocità y viene dato in maniera casuale
@@ -102,7 +85,7 @@ function love.update(dt)
         else
             ball.dx = -math.random(140, 200)
         end
-    
+        
 
     elseif gameState == 'play' then
         -- becchiamo le collisioni tramite la funzione nel Ball.lua
@@ -111,7 +94,7 @@ function love.update(dt)
             ball.dx = -ball.dx * 1.2
             -- ci assicuriamo che la palla non entri all'interno del paddle dandogli una posizione
             ball.x = player1.x + 5
-
+            
             --variamo la y della palla in modo da non avere sempre solo lo stesso angolo
 
             if ball.dy < 0 then
@@ -119,10 +102,10 @@ function love.update(dt)
             else
                 ball.dy = math.random(10, 150)
             end
-
+            
         end
 
-
+        
         -- becchiamo le collisioni tramite la funzione nel Ball.lua con il player 2
         if ball:collide(player2) then
             -- invertiamo il delta x della palla e lo velocizziamo
@@ -130,7 +113,7 @@ function love.update(dt)
             -- ci assicuriamo che la palla non entri all'interno del paddle dandogli una posizione
             -- in questo caso -4 perché partendo da destra incontriamo la larghezza della palla
             ball.x = player2.x - 4
-
+            
             if ball.dy < 0 then
                 ball.dy = -math.random(10, 150)
             else
@@ -144,7 +127,7 @@ function love.update(dt)
             ball:reset()
             gameState = 'serve'
         end
-
+        
         if ball.x > VIRTUAL_WIDTH then
             servingPlayer = 2
             player1Score = player1Score + 1
@@ -163,20 +146,20 @@ function love.update(dt)
             ball.dy = -ball.dy
         end
     end
-
-
+    
+    
     -- movimenti player 1
     if love.keyboard.isDown('w') then
         -- aggiungo velocità negativa al valore y
         player1.dy = -PADDLE_SPEED
-
+        
     elseif love.keyboard.isDown('s') then
         -- aggiungiamo velocità positiva al valore y
         player1.dy = PADDLE_SPEED
     else
         player1.dy = 0
     end
-
+    
     --movimenti player 2 
     if love.keyboard.isDown('up') then
         player2.dy = - PADDLE_SPEED
@@ -185,14 +168,29 @@ function love.update(dt)
     else
         player2.dy = 0
     end
-
+    
     if gameState == 'play' then
         ball:update(dt)
     end
-
+    
     player1:update(dt)
     player2:update(dt)
 end
+
+-- funzione love.pressedkey() serve a intercettare gli input degli utenti
+function love.keypressed(key)
+    
+    if key == 'escape' then
+        love.event.quit()
+    elseif key == 'enter' or key == 'return' then 
+        if gameState == 'start' then
+            gameState = 'serve'
+        elseif gameState == 'serve' then
+            gameState = 'play'
+        end
+    end
+end
+
 
 -- funzione love.draw() viene chiamata dopo l'update di LOVE2D e serve per disegnare qualcosa sullo schermo.
 
@@ -205,18 +203,18 @@ function love.draw()
     -- sposto più in alto la scritta ciao pong rispetto allo scorso commit ricordando che adesso le misure rispecchieranno quelle virtuali
     love.graphics.setFont(smallFont)
 
-    love.graphics.printf(
-        'Ciao Pong', --testo da stampare
-        0, -- posizione X iniziale
-        20, -- posizione Y iniziale (utilizziamo l'altezza della finestra /2 per metterlo a metà schermo)
-        VIRTUAL_WIDTH, -- Il numero dei pixel all'interno del quale il testo è centrato
-        'center') --metodo di allineamento, può essere 'center', 'left' o 'right'
-    love.graphics.printf(
-        gameState, --testo da stampare
-        0, -- posizione X iniziale
-        0, -- posizione Y iniziale (utilizziamo l'altezza della finestra /2 per metterlo a metà schermo)
-        VIRTUAL_WIDTH, -- Il numero dei pixel all'interno del quale il testo è centrato
-        'center') --metodo di allineamento, può essere 'center', 'left' o 'right'
+    if gameState == 'start' then
+        love.graphics.setFont(smallFont)
+        love.graphics.printf('Benvenuto su Pong!', 0, 10, VIRTUAL_WIDTH, 'center')
+        love.graphics.printf('Premi invio per iniziare', 0, 20, VIRTUAL_WIDTH, 'center')
+    elseif gameState == 'serve' then
+        love.graphics.setFont(smallFont)
+        love.graphics.printf('Serve il giocatore ' .. tostring(servingPlayer), 
+            0, 10, VIRTUAL_WIDTH, 'center')
+        love.graphics.printf('Premi invio per servire', 0, 20, VIRTUAL_WIDTH, 'center')
+    elseif gameState == 'play' then
+        -- no UI messages to display in play
+    end
     
     --scrivo il punteggio a schermo
     -- setto il font come prima cosa altrimenti utilizza quello precedente

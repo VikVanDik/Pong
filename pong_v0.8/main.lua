@@ -96,7 +96,7 @@ function love.update(dt)
         -- becchiamo le collisioni tramite la funzione nel Ball.lua
         if ball:collide(player1) then
             -- invertiamo il delta x della palla e lo velocizziamo
-            ball.dx = -ball.dx * 1.05
+            ball.dx = -ball.dx * 1.2
             -- ci assicuriamo che la palla non entri all'interno del paddle dandogli una posizione
             ball.x = player1.x + 5
 
@@ -125,6 +125,18 @@ function love.update(dt)
                 ball.dy = math.random(10, 150)
             end
         end
+
+        if ball.x < 0 then
+            servingPlayer = 1
+            player2Score = player2Score + 1
+            ball:reset()
+            gameState = 'serve'
+
+        if ball.x > VIRTUAL_WIDTH then
+            servingPlayer = 2
+            player1Score = player1Score + 1
+            ball:reset()
+            gameState = 'serve'
 
         -- adesso consideriamo le collisioni con le parti sopra e sotto dello schermo
         if ball.y <= 0 then

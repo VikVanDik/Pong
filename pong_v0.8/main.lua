@@ -34,7 +34,7 @@ function love.load()
 
 
     -- settiamo il nome del gioco
-    love.window.setTitle('pong')
+    love.window.setTitle('Pong')
     -- facciamo un seed del randomizer (ha bisogno di un valore per funzionare)
     -- utilizziamo il tempo attuale in secondi dal 01/01/1970
     math.randomseed(os.time())
@@ -92,7 +92,19 @@ end
 
 function love.update(dt)
 
-    if gameState == 'play' then
+    if gameState == 'serve' then
+
+        -- il delta della velocità y viene dato in maniera casuale
+        ball.dy = math.random(-50, 50)
+        -- dipendentemente dal giocatore che ha segnato facciamo partire la pallina dall'altro lato
+        if servingPlayer == 1 then
+            ball.dx = math.random(140, 200)
+        else
+            ball.dx = -math.random(140, 200)
+        end
+    
+
+    elseif gameState == 'play' then
         -- becchiamo le collisioni tramite la funzione nel Ball.lua
         if ball:collide(player1) then
             -- invertiamo il delta x della palla e lo velocizziamo
@@ -131,12 +143,14 @@ function love.update(dt)
             player2Score = player2Score + 1
             ball:reset()
             gameState = 'serve'
+        end
 
         if ball.x > VIRTUAL_WIDTH then
             servingPlayer = 2
             player1Score = player1Score + 1
             ball:reset()
             gameState = 'serve'
+        end
 
         -- adesso consideriamo le collisioni con le parti sopra e sotto dello schermo
         if ball.y <= 0 then

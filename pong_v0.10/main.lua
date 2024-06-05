@@ -124,15 +124,25 @@ function love.update(dt)
         if ball.x < 0 then
             servingPlayer = 1
             player2Score = player2Score + 1
-            ball:reset()
-            gameState = 'serve'
+            if player2Score == 3 then 
+                winningPlayer = 2
+                gameState = "winning"
+            else
+                gameState = 'serve'
+                ball:reset()
+            end
         end
         
         if ball.x > VIRTUAL_WIDTH then
             servingPlayer = 2
             player1Score = player1Score + 1
-            ball:reset()
-            gameState = 'serve'
+            if player1Score == 3 then 
+                winningPlayer = 1
+                gameState = "winning"
+            else
+                gameState = 'serve'
+                ball:reset()
+            end
         end
 
         -- adesso consideriamo le collisioni con le parti sopra e sotto dello schermo
@@ -187,6 +197,19 @@ function love.keypressed(key)
             gameState = 'serve'
         elseif gameState == 'serve' then
             gameState = 'play'
+        elseif gameState == 'winning' then
+
+            gameState = 'serve'
+
+            player1Score = 0
+            player2Score = 0
+
+            ball:reset()
+            if winningPlayer == 1 then
+                servingPlayer = 2
+            else
+                servingPlayer = 1
+            end
         end
     end
 end
@@ -214,6 +237,12 @@ function love.draw()
         love.graphics.printf('Premi invio per servire', 0, 20, VIRTUAL_WIDTH, 'center')
     elseif gameState == 'play' then
         -- no UI messages to display in play
+
+    elseif gameState == 'winning' then
+    love.graphics.setFont(smallFont)
+    love.graphics.setColor(255/255, 0, 0, 255/255)
+    love.graphics.printf('Vince il giocatore ' .. tostring(servingPlayer), 
+            0, 10, VIRTUAL_WIDTH, 'center')
     end
     
     --scrivo il punteggio a schermo

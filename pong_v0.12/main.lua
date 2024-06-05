@@ -56,7 +56,7 @@ function love.load()
     -- Per settare la larghezza della finestra non usiamo più la funzione window.setmode ma utilizziamo la libreria push
     push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
         fullscreen = false,
-        resizable = false,
+        resizable = true,
         vsync = true
     })
 
@@ -77,6 +77,11 @@ function love.load()
     -- creo una variabile di stato del gioco, per dividere i vari momenti
     -- start è il momento in cui ancora non si gioca ed è tutto fermo
     gameState = 'start'
+end
+
+-- rendiamo modificabile la grandezza della finestra senza rompere il gioco
+function love.resize (w, h)
+    push:resize(w, h)
 end
 
 
